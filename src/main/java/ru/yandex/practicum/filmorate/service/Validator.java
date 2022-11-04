@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
@@ -58,7 +57,7 @@ public class Validator {
         }
         if (!isEmptyFilmName(film) && isValidReleaseDate(film) &&
                 isValidFilmDuration(film) && isValidLengthFilmDescription(film)) {
-            System.out.print("Валидация фмльма прошла успешно.");
+            System.out.print("Валидация фильма прошла успешно.");
         }
     }
     private static boolean isEmptyFilmName(Film film) {
@@ -71,6 +70,6 @@ public class Validator {
         return film.getReleaseDate().isAfter(EARLIEST_RELEASE_DATE);
     }
     private static boolean isValidFilmDuration(Film film) {
-        return !film.getDuration().isNegative();
+        return film.getDuration() >= 0;
     }
 }

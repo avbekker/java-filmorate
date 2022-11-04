@@ -12,29 +12,36 @@ import static ru.yandex.practicum.filmorate.model.User.USER_ENDPOINT;
 @RestController
 @RequestMapping(USER_ENDPOINT)
 public class UserController {
+    private int id = 0;
     private final Map<Integer, User> users = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping
-    public void createUser(@RequestBody User user) {
+    public User createUser(@RequestBody User user) {
         Validator.userValidator(user);
         log.debug("Получен запрос POST {}", USER_ENDPOINT);
         if (users.containsKey(user.getId())) {
             throw new ValidationException("Пользователь с id " + user.getId() + " уже существует.");
         }
+        user.setId(++id);
         users.put(user.getId(), user);
+        return user;
     }
 
     @PutMapping
-    public void updateUser(@RequestBody User user) {
+    public User updateUser(@RequestBody User user) {
+        if (!users.containsKey(user.getId())) {
+            throw new ValidationException("Пользователя с id " + user.getId() + " не существует.");
+        }
         Validator.userValidator(user);
         log.debug("Получен запрос PUT {}", USER_ENDPOINT);
         users.put(user.getId(), user);
+        return user;
     }
 
     @GetMapping
-    public Collection<User> getUsers() {
-        return users.values();
+    public ArrayList<User> getUsers() {
+        return new ArrayList<>(users.values());
     }
 
 }
