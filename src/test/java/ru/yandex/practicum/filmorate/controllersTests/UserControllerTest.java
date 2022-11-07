@@ -20,7 +20,6 @@ public class UserControllerTest {
         assertEquals(1, controller.getUsers().size());
         controller.createUser(goodUser2);
         assertEquals(2, controller.getUsers().size());
-        assertThrows(ValidationException.class, () -> controller.createUser(goodUser));
     }
     @Test
     public void updateUserTest(){

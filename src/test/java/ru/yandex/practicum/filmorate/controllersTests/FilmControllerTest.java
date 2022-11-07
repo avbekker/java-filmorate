@@ -22,7 +22,6 @@ public class FilmControllerTest {
         assertEquals(1, controller.getFilms().size());
         controller.createFilm(goodFilm2);
         assertEquals(2, controller.getFilms().size());
-        assertThrows(ValidationException.class, () -> controller.createFilm(goodFilm));
     }
     @Test
     public void shouldFailCreationWithEmptyName(){
