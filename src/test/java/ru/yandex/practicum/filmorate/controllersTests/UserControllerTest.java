@@ -50,39 +50,11 @@ public class UserControllerTest {
         assertThrows(ValidationException.class, () -> controller.createUser(userWithBadEmail));
     }
     @Test
-    public void shouldFailCreationWithBlankEmail(){
-        User userWithBlankEmail = User.builder().id(1).login("Login").name("Name").birthday(LocalDate.of(1990, 9, 20))
-                .email("")
-                .build();
-        assertThrows(ValidationException.class, () -> controller.createUser(userWithBlankEmail));
-    }
-    @Test
-    public void shouldFailCreationWithNullEmail(){
-        User userWithNullEmail = User.builder().id(1).login("Login").name("Name").birthday(LocalDate.of(1990, 9, 20))
-                .email(null)
-                .build();
-        assertThrows(ValidationException.class, () -> controller.createUser(userWithNullEmail));
-    }
-    @Test
     public void shouldFailCreationWithBadLogin(){
         User userWithBadLogin = User.builder().id(1).email("1@mailer.com")
                 .login("Login with spaces")
                 .name("Name").birthday(LocalDate.of(1990, 9, 20)).build();
         assertThrows(ValidationException.class, () -> controller.createUser(userWithBadLogin));
-    }
-    @Test
-    public void shouldFailCreationWithBlankLogin(){
-        User userWithBlankLogin = User.builder().id(1).email("1@mailer.com")
-                .login("")
-                .name("Name").birthday(LocalDate.of(1990, 9, 20)).build();
-        assertThrows(ValidationException.class, () -> controller.createUser(userWithBlankLogin));
-    }
-    @Test
-    public void shouldFailCreationWithNullLogin(){
-        User userWithNullLogin = User.builder().id(1).email("1@mailer.com")
-                .login(null)
-                .name("Name").birthday(LocalDate.of(1990, 9, 20)).build();
-        assertThrows(ValidationException.class, () -> controller.createUser(userWithNullLogin));
     }
     @Test
     public void ShouldFailCreationWithBadBirthday() {

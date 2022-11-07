@@ -15,8 +15,6 @@ public class User {
     @NotNull
     @NotBlank
     private String login;
-    @NotNull
-    @NotBlank
     private String name;
     @NotNull
     @Past

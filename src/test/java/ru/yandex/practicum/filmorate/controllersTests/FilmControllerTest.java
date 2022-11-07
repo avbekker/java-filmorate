@@ -24,21 +24,6 @@ public class FilmControllerTest {
         assertEquals(2, controller.getFilms().size());
     }
     @Test
-    public void shouldFailCreationWithEmptyName(){
-        Film filmWithEmptyName = Film.builder().id(1).name("")
-                .description("Some lady want to kill her ex boyfriend with big knife.")
-                .duration(120).releaseDate(LocalDate.of(2003, 9, 23)).build();
-        assertThrows(ValidationException.class, () -> controller.createFilm(filmWithEmptyName));
-    }
-    @Test
-    public void shouldFailCreationWithNullName(){
-        Film filmWithEmptyName = Film.builder().id(1)
-                .name(null)
-                .description("Some lady want to kill her ex boyfriend with big knife.").duration(120)
-                .releaseDate(LocalDate.of(2003, 9, 23)).build();
-        assertThrows(ValidationException.class, () -> controller.createFilm(filmWithEmptyName));
-    }
-    @Test
     public void shouldFailCreationWithDescriptionMoreThan200Characters(){
         Film film = Film.builder().id(1).name("Kill Bill")
                 .description("Some lady want to kill her ex boyfriend with big knife. This test for description more " +
