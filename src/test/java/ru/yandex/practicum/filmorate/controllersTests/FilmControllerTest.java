@@ -24,15 +24,6 @@ public class FilmControllerTest {
         assertEquals(2, controller.getFilms().size());
     }
     @Test
-    public void shouldFailCreationWithDescriptionMoreThan200Characters(){
-        Film film = Film.builder().id(1).name("Kill Bill")
-                .description("Some lady want to kill her ex boyfriend with big knife. This test for description more " +
-                        "than 200 characters, but I do not know what can I write in this section to rise description " +
-                        "up to 200 characters. ")
-                .duration(120).releaseDate(LocalDate.of(2003, 9, 23)).build();
-        assertThrows(ValidationException.class, () -> controller.createFilm(film));
-    }
-    @Test
     public void shouldCreateWithDescriptionEquals200Characters(){
         Film film = Film.builder().id(1).name("Kill Bill")
                 .description("Some lady want to kill her ex boyfriend with big knife. This test for description more " +
@@ -48,13 +39,6 @@ public class FilmControllerTest {
                 .name("Kill Bill").description("Some lady want to kill her ex boyfriend with big knife.").duration(120)
                 .releaseDate(LocalDate.of(1880, 9, 23))
                 .build();
-        assertThrows(ValidationException.class, () -> controller.createFilm(film));
-    }
-    @Test
-    public void shouldFailCreationWithNegativeDuration(){
-        Film film = Film.builder().id(1).name("Kill Bill").description("Some lady want to kill her ex boyfriend with big knife.")
-                .duration(-1)
-                .releaseDate(LocalDate.of(2003, 9, 23)).build();
         assertThrows(ValidationException.class, () -> controller.createFilm(film));
     }
     @Test

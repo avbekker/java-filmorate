@@ -43,25 +43,11 @@ public class UserControllerTest {
         assertEquals(1, controller.getUsers().size());
     }
     @Test
-    public void shouldFailCreationWithBadEmail(){
-        User userWithBadEmail = User.builder().id(1).login("Login").name("Name").birthday(LocalDate.of(1990, 9, 20))
-                .email("1mailer.com")
-                .build();
-        assertThrows(ValidationException.class, () -> controller.createUser(userWithBadEmail));
-    }
-    @Test
     public void shouldFailCreationWithBadLogin(){
         User userWithBadLogin = User.builder().id(1).email("1@mailer.com")
                 .login("Login with spaces")
                 .name("Name").birthday(LocalDate.of(1990, 9, 20)).build();
         assertThrows(ValidationException.class, () -> controller.createUser(userWithBadLogin));
-    }
-    @Test
-    public void ShouldFailCreationWithBadBirthday() {
-        User userWithBadBirthday = User.builder().id(1).email("1@mailer.com").login("Login").name("Name")
-                .birthday(LocalDate.of(2023, 9, 20))
-                .build();
-        assertThrows(ValidationException.class, () -> controller.createUser(userWithBadBirthday));
     }
     @Test
     public void ShouldFailCreationWithBlankName() {

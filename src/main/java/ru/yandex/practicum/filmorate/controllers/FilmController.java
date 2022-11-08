@@ -7,10 +7,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.Validator;
 import javax.validation.Valid;
 import java.util.*;
-import static ru.yandex.practicum.filmorate.model.Film.FILM_ENDPOINT;
 
 @RestController
-@RequestMapping(FILM_ENDPOINT)
+@RequestMapping("/films")
 @Slf4j
 public class FilmController {
     private int id = 0;
@@ -19,7 +18,7 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         Validator.filmValidator(film);
-        log.debug("Получен запрос POST {}", FILM_ENDPOINT);
+        log.debug("Получен запрос POST/films");
         film.setId(++id);
         films.put(film.getId(), film);
         return film;
@@ -31,7 +30,7 @@ public class FilmController {
             throw new ValidationException("Фильма с id " + film.getId() + " не существует.");
         }
         Validator.filmValidator(film);
-        log.debug("Получен запрос PUT {}", FILM_ENDPOINT);
+        log.debug("Получен запрос PUT/films");
         films.put(film.getId(), film);
         return film;
     }

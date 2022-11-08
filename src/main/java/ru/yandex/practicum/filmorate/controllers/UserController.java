@@ -7,10 +7,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.Validator;
 import javax.validation.Valid;
 import java.util.*;
-import static ru.yandex.practicum.filmorate.model.User.USER_ENDPOINT;
 
 @RestController
-@RequestMapping(USER_ENDPOINT)
+@RequestMapping("/users")
 @Slf4j
 public class UserController {
     private int id = 0;
@@ -19,7 +18,7 @@ public class UserController {
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         Validator.userValidator(user);
-        log.debug("Получен запрос POST {}", USER_ENDPOINT);
+        log.debug("Получен запрос POST/users");
         user.setId(++id);
         users.put(user.getId(), user);
         return user;
@@ -31,7 +30,7 @@ public class UserController {
             throw new ValidationException("Пользователя с id " + user.getId() + " не существует.");
         }
         Validator.userValidator(user);
-        log.debug("Получен запрос PUT {}", USER_ENDPOINT);
+        log.debug("Получен запрос PUT/users");
         users.put(user.getId(), user);
         return user;
     }
