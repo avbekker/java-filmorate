@@ -11,9 +11,6 @@ public class Validator {
 
 //Проверка характеристик пользователя
     public static void userValidator(User user) {
-        if (!isValidLogin(user)) {
-            throw new ValidationException("Логин пользователя некорректен.");
-        }
         if (!isValidName(user) && isValidLogin(user)) {
             user.setName(user.getLogin());
         }
