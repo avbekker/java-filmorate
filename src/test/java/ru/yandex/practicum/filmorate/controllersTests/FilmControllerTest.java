@@ -4,11 +4,16 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
-    FilmController controller = new FilmController();
+    InMemoryFilmStorage storage = new InMemoryFilmStorage();
+    FilmService service = new FilmService(storage);
+    FilmController controller = new FilmController(service, storage);
     Film goodFilm = Film.builder().id(1).name("Kill Bill")
             .description("Some lady want to kill her ex boyfriend with big knife.")
             .duration(120).releaseDate(LocalDate.of(2003, 9, 23)).build();
