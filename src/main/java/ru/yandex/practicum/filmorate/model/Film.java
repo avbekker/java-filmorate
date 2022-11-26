@@ -21,7 +21,6 @@ public class Film {
     @NotNull
     private LocalDate releaseDate;
     @Positive
-    @NotNull
     private int duration;
     @JsonIgnore
     Set<Integer> likes = new HashSet<>();

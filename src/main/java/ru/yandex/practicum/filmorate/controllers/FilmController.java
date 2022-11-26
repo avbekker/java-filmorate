@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-
 import javax.validation.Valid;
 import java.util.*;
 
@@ -15,8 +14,8 @@ import java.util.*;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    FilmService service;
-    InMemoryFilmStorage storage;
+    private final FilmService service;
+    private final InMemoryFilmStorage storage;
     @Autowired
     public FilmController(FilmService service, InMemoryFilmStorage storage) {
         this.service = service;

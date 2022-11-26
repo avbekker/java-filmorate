@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    UserService service;
-    InMemoryUserStorage storage;
+    private final UserService service;
+    private final InMemoryUserStorage storage;
     @Autowired
     public UserController(UserService service, InMemoryUserStorage storage) {
         this.service = service;
