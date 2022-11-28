@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmControllerTest {
     InMemoryFilmStorage storage = new InMemoryFilmStorage();
     FilmService service = new FilmService(storage);
-    FilmController controller = new FilmController(service, storage);
+    FilmController controller = new FilmController(service);
     Film goodFilm = Film.builder().id(1).name("Kill Bill")
             .description("Some lady want to kill her ex boyfriend with big knife.")
             .duration(120).releaseDate(LocalDate.of(2003, 9, 23)).build();

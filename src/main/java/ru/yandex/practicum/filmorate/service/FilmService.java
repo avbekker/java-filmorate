@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage storage;
+
+    public FilmStorage getStorage() {
+        return storage;
+    }
+
     public void setLike(Integer userId, Integer filmId) {
         storage.getFilms().get(filmId).getLikes().add(userId);
     }
@@ -18,10 +23,7 @@ public class FilmService {
         storage.getFilms().get(filmId).getLikes().remove(userId);
     }
     public List<Film> getTop(Integer count) {
-        if (count == null) {
-            count = 10;
-        }
-        return storage.getFilms().values().stream()
+        return storage.getFilms().stream()
                 .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());

@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    public UserStorage getStorage() {
+        return storage;
+    }
+
     private final UserStorage storage;
-    public void addFriend(int userId, int friendId) {
-        User user = storage.getUsers().get(userId);
-        User friend = storage.getUsers().get(friendId);
+    public void addFriend(User user, User friend) {
         user.getFriends().add(friend.getId());
         friend.getFriends().add(user.getId());
     }

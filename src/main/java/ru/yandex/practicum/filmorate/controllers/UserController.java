@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,48 +15,46 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserController {
     private final UserService service;
-    private final InMemoryUserStorage storage;
     @Autowired
-    public UserController(UserService service, InMemoryUserStorage storage) {
+    public UserController(UserService service) {
         this.service = service;
-        this.storage = storage;
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
+    public void createUser(@Valid @RequestBody User user) {
         log.info("Новый пользователь {} создан", user.getLogin());
-        storage.createUser(user);
-        return user;
+        service.getStorage().createUser(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        existingValidation(user.getId());
+    public void updateUser(@Valid @RequestBody User user) {
+        User validatedUser = Optional.of(service.getStorage().getUsers().get(user.getId()))
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
         log.info("Обновление пользователя {}", user.getLogin());
-        storage.updateUser(user);
-        return user;
+        service.getStorage().updateUser(validatedUser);
     }
 
     @GetMapping
     public List<User> getUsers() {
         log.info("Получение списка всех пользователей");
-        return new ArrayList<>(storage.getUsers().values());
+        return new ArrayList<>(service.getStorage().getUsers());
     }
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable int userId) {
-        existingValidation(userId);
+        User user = Optional.of(service.getStorage().getUsers().get(userId))
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
         log.info("Получение пользователя с ID = {}", userId);
-        return storage.getUsers().get(userId);
+        return user;
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
     public void makeFriends(@PathVariable int userId, @PathVariable int friendId) {
-        if (storage.getUsers().containsKey(userId) && storage.getUsers().containsKey(friendId)) {
-            service.addFriend(userId, friendId);
-        } else {
-            throw new NotFoundException("Пользователя с таким ID не существует.");
-        }
+        User user = Optional.of(service.getStorage().getUsers().get(userId))
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+        User friend = Optional.of(service.getStorage().getUsers().get(friendId))
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+            service.addFriend(user, friend);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
@@ -68,8 +65,8 @@ public class UserController {
     @GetMapping("/{userId}/friends")
     public List<User> getUserFriends(@PathVariable int userId) {
         log.info("Получение списка друзей пользователя с ID = {}", userId);
-        Set<Integer> friendList = storage.getUsers().get(userId).getFriends();
-        return storage.getUsers().values().stream()
+        Set<Integer> friendList = service.getStorage().getUsers().get(userId).getFriends();
+        return service.getStorage().getUsers().stream()
                 .filter(f -> friendList.contains(f.getId()))
                 .collect(Collectors.toList());
     }
@@ -77,13 +74,8 @@ public class UserController {
     @GetMapping("/{userId}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable int userId, @PathVariable int otherId) {
         log.info("Получение списка общих друзей пользователей c ID {} и {}", userId, otherId);
-        Set<User> mutualFriends = service.getMutualFriends(storage.getUsers().get(userId), storage.getUsers().get(otherId));
+        Set<User> mutualFriends = service.getMutualFriends(service.getStorage().getUsers().get(userId),
+                service.getStorage().getUsers().get(otherId));
         return new ArrayList<>(mutualFriends);
-    }
-
-    private void existingValidation(int userId) {
-        if (!storage.getUsers().containsKey(userId)) {
-            throw new NotFoundException("Пользователся с ID " + userId + " не существует.");
-        }
     }
 }
