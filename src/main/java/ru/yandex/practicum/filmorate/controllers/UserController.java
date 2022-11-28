@@ -21,17 +21,20 @@ public class UserController {
     }
 
     @PostMapping
-    public void createUser(@Valid @RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
         log.info("Новый пользователь {} создан", user.getLogin());
         service.getStorage().createUser(user);
+        return user;
     }
 
     @PutMapping
-    public void updateUser(@Valid @RequestBody User user) {
-        User validatedUser = Optional.of(service.getStorage().getUsers().get(user.getId()))
-                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+    public User updateUser(@Valid @RequestBody User user) {
+        if (service.getStorage().getUsers().stream().noneMatch(f -> f.getId() == user.getId())) {
+                throw new NotFoundException("Пользователя с таким ID не существует.");
+        }
         log.info("Обновление пользователя {}", user.getLogin());
-        service.getStorage().updateUser(validatedUser);
+        service.getStorage().updateUser(user);
+        return user;
     }
 
     @GetMapping
@@ -42,30 +45,30 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable int userId) {
-        User user = Optional.of(service.getStorage().getUsers().get(userId))
-                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+        User user = getUserById(userId);
         log.info("Получение пользователя с ID = {}", userId);
         return user;
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
     public void makeFriends(@PathVariable int userId, @PathVariable int friendId) {
-        User user = Optional.of(service.getStorage().getUsers().get(userId))
-                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
-        User friend = Optional.of(service.getStorage().getUsers().get(friendId))
-                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
-            service.addFriend(user, friend);
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        service.addFriend(user, friend);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
     public void deleteFriend(@PathVariable int userId, @PathVariable int friendId) {
-        service.deleteFriend(userId, friendId);
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        service.deleteFriend(user, friend);
     }
 
     @GetMapping("/{userId}/friends")
     public List<User> getUserFriends(@PathVariable int userId) {
         log.info("Получение списка друзей пользователя с ID = {}", userId);
-        Set<Integer> friendList = service.getStorage().getUsers().get(userId).getFriends();
+        User user = getUserById(userId);
+        Set<Integer> friendList = user.getFriends();
         return service.getStorage().getUsers().stream()
                 .filter(f -> friendList.contains(f.getId()))
                 .collect(Collectors.toList());
@@ -74,8 +77,14 @@ public class UserController {
     @GetMapping("/{userId}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable int userId, @PathVariable int otherId) {
         log.info("Получение списка общих друзей пользователей c ID {} и {}", userId, otherId);
-        Set<User> mutualFriends = service.getMutualFriends(service.getStorage().getUsers().get(userId),
-                service.getStorage().getUsers().get(otherId));
+        User user = getUserById(userId);
+        User otherUser = getUserById(otherId);
+        Set<User> mutualFriends = service.getMutualFriends(user, otherUser);
         return new ArrayList<>(mutualFriends);
+    }
+
+    private User getUserById(int id) {
+        return service.getStorage().getUsers().stream().filter(u -> u.getId() == id).findFirst()
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
     }
 }

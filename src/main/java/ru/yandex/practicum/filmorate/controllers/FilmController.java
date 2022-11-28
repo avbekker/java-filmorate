@@ -23,16 +23,17 @@ public class FilmController {
     }
 
     @PostMapping
-    public void createFilm(@Valid @RequestBody Film film) {
+    public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Добавление нового фильма {}", film.getName());
         service.getStorage().createFilm(film);
+        return film;
     }
     @PutMapping
-    public void updateFilm(@Valid @RequestBody Film film) {
-        Film validatedFilm = Optional.of(service.getStorage().getFilms().get(film.getId()))
-                .orElseThrow(() -> new NotFoundException("Фильма с ID " + film.getId() + " не существует."));
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        Film validatedFilm = getValidatedFilm(film.getId());
         log.info("Обновление фильма {}", validatedFilm.getName());
-        service.getStorage().updateFilm(validatedFilm);
+        service.getStorage().updateFilm(film);
+        return film;
     }
 
     @GetMapping
@@ -44,19 +45,19 @@ public class FilmController {
     @PutMapping("/{filmId}/like/{userId}")
     public void like(@PathVariable int filmId, @PathVariable int userId) {
         log.info("Пользователь с ID {} поставил лайк фильму с ID {}", userId, filmId);
-        service.setLike(userId, filmId);
+        Film film = getValidatedFilm(filmId);
+        service.setLike(userId, film);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteLike(@PathVariable int filmId, @PathVariable int userId) {
-        Film validatedFilm = Optional.of(service.getStorage().getFilms().get(filmId))
-                .orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
+        Film validatedFilm = getValidatedFilm(filmId);
         if (!validatedFilm.getLikes().contains(userId)) {
             throw new NotFoundException("Пользователь с ID " + userId + " не ставил лайк фильму "
                     + validatedFilm.getName());
         }
         log.info("Пользователь с ID {} убрал лайк от фильма с ID {}", userId, validatedFilm.getId());
-        service.deleteLike(userId, filmId);
+        service.deleteLike(userId, validatedFilm);
     }
 
     @GetMapping("/popular")
@@ -67,9 +68,13 @@ public class FilmController {
 
     @GetMapping("/{filmId}")
     public Film getFilmById(@PathVariable int filmId) {
-        Film validatedFilm = Optional.of(service.getStorage().getFilms().get(filmId))
-                .orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
+        Film validatedFilm = getValidatedFilm(filmId);
         log.info("Получение фильма с ID {}", filmId);
         return validatedFilm;
+    }
+
+    private Film getValidatedFilm(int filmId) {
+        return service.getStorage().getFilms().stream().filter(f -> f.getId() == filmId).findFirst()
+                .orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
     }
 }

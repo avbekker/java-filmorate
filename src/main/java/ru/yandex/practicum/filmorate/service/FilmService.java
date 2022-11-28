@@ -16,11 +16,11 @@ public class FilmService {
         return storage;
     }
 
-    public void setLike(Integer userId, Integer filmId) {
-        storage.getFilms().get(filmId).getLikes().add(userId);
+    public void setLike(Integer userId, Film film) {
+        film.getLikes().add(userId);
     }
-    public void deleteLike(Integer userId, Integer filmId) {
-        storage.getFilms().get(filmId).getLikes().remove(userId);
+    public void deleteLike(Integer userId, Film film) {
+        film.getLikes().remove(userId);
     }
     public List<Film> getTop(Integer count) {
         return storage.getFilms().stream()
