@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.Validator;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,78 +14,76 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
     private final UserService service;
-    @Autowired
-    public UserController(UserService service) {
-        this.service = service;
-    }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
+        Validator.userValidator(user);
         log.info("Новый пользователь {} создан", user.getLogin());
-        service.getStorage().createUser(user);
+        service.create(user);
         return user;
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        if (service.getStorage().getUsers().stream().noneMatch(f -> f.getId() == user.getId())) {
+    public User update(@Valid @RequestBody User user) {
+        if (service.getUsers().stream().noneMatch(f -> f.getId() == user.getId())) {
                 throw new NotFoundException("Пользователя с таким ID не существует.");
         }
+        Validator.userValidator(user);
         log.info("Обновление пользователя {}", user.getLogin());
-        service.getStorage().updateUser(user);
+        service.update(user);
         return user;
     }
 
     @GetMapping
     public List<User> getUsers() {
         log.info("Получение списка всех пользователей");
-        return new ArrayList<>(service.getStorage().getUsers());
+        return new ArrayList<>(service.getUsers());
     }
 
     @GetMapping("/{userId}")
-    public User getUser(@PathVariable int userId) {
-        User user = getUserById(userId);
+    public User getUser(@PathVariable long userId) {
+        User user = getById(userId);
         log.info("Получение пользователя с ID = {}", userId);
         return user;
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
-    public void makeFriends(@PathVariable int userId, @PathVariable int friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
+    public void makeFriends(@PathVariable long userId, @PathVariable long friendId) {
+        User user = getById(userId);
+        User friend = getById(friendId);
         service.addFriend(user, friend);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
-    public void deleteFriend(@PathVariable int userId, @PathVariable int friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
+    public void deleteFriend(@PathVariable long userId, @PathVariable long friendId) {
+        User user = getById(userId);
+        User friend = getById(friendId);
         service.deleteFriend(user, friend);
     }
 
     @GetMapping("/{userId}/friends")
-    public List<User> getUserFriends(@PathVariable int userId) {
+    public List<User> getUserFriends(@PathVariable long userId) {
         log.info("Получение списка друзей пользователя с ID = {}", userId);
-        User user = getUserById(userId);
-        Set<Integer> friendList = user.getFriends();
-        return service.getStorage().getUsers().stream()
+        User user = getById(userId);
+        Set<Long> friendList = user.getFriends();
+        return service.getUsers().stream()
                 .filter(f -> friendList.contains(f.getId()))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
-    public List<User> getMutualFriends(@PathVariable int userId, @PathVariable int otherId) {
+    public List<User> getMutualFriends(@PathVariable long userId, @PathVariable long otherId) {
         log.info("Получение списка общих друзей пользователей c ID {} и {}", userId, otherId);
-        User user = getUserById(userId);
-        User otherUser = getUserById(otherId);
+        User user = getById(userId);
+        User otherUser = getById(otherId);
         Set<User> mutualFriends = service.getMutualFriends(user, otherUser);
         return new ArrayList<>(mutualFriends);
     }
 
-    private User getUserById(int id) {
-        return service.getStorage().getUsers().stream().filter(u -> u.getId() == id).findFirst()
-                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+    private User getById(long id) {
+        return service.getById(id).orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
     }
 }

@@ -12,7 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Film {
-    private int id;
+    private long id;
     @NotBlank
     private String name;
     @NotBlank
@@ -23,5 +23,5 @@ public class Film {
     @Positive
     private int duration;
     @JsonIgnore
-    Set<Integer> likes = new HashSet<>();
+    Set<Long> likes = new HashSet<>();
 }
