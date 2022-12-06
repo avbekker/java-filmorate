@@ -4,11 +4,16 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
-    FilmController controller = new FilmController();
+    InMemoryFilmStorage storage = new InMemoryFilmStorage();
+    FilmService service = new FilmService(storage);
+    FilmController controller = new FilmController(service);
     Film goodFilm = Film.builder().id(1).name("Kill Bill")
             .description("Some lady want to kill her ex boyfriend with big knife.")
             .duration(120).releaseDate(LocalDate.of(2003, 9, 23)).build();
@@ -18,9 +23,9 @@ public class FilmControllerTest {
 
     @Test
     public void createNewFilmTest(){
-        controller.createFilm(goodFilm);
+        controller.create(goodFilm);
         assertEquals(1, controller.getFilms().size());
-        controller.createFilm(goodFilm2);
+        controller.create(goodFilm2);
         assertEquals(2, controller.getFilms().size());
     }
     @Test
@@ -30,7 +35,7 @@ public class FilmControllerTest {
                         "than 200 characters, but I do not know what can I write in this section to rise description " +
                         "up to 200 characters")
                 .duration(120).releaseDate(LocalDate.of(2003, 9, 23)).build();
-        controller.createFilm(film);
+        controller.create(film);
         assertEquals(1, controller.getFilms().size());
     }
     @Test
@@ -39,14 +44,14 @@ public class FilmControllerTest {
                 .name("Kill Bill").description("Some lady want to kill her ex boyfriend with big knife.").duration(120)
                 .releaseDate(LocalDate.of(1880, 9, 23))
                 .build();
-        assertThrows(ValidationException.class, () -> controller.createFilm(film));
+        assertThrows(ValidationException.class, () -> controller.create(film));
     }
     @Test
     public void shouldCreateWith0Duration(){
         Film film = Film.builder().id(1).name("Kill Bill").description("Some lady want to kill her ex boyfriend with big knife.")
                 .duration(0)
                 .releaseDate(LocalDate.of(2003, 9, 23)).build();
-        controller.createFilm(film);
+        controller.create(film);
         assertEquals(1, controller.getFilms().size());
     }
 }

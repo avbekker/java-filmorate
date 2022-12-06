@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 
 public class Validator {
-    private static final int MAX_LENGTH_DESCRIPTION = 200;
     private static final LocalDate EARLIEST_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
 //Проверка характеристик пользователя
@@ -18,9 +17,11 @@ public class Validator {
             System.out.print("Валидация пользователя прошла успешно.");
         }
     }
+
     private static boolean isValidLogin(User user) {
         return !user.getLogin().contains(" ");
     }
+
     private static boolean isValidName(User user) {
         return user.getName() != null && !user.getName().isBlank();
     }
@@ -34,6 +35,7 @@ public class Validator {
             System.out.print("Валидация фильма прошла успешно.");
         }
     }
+
     private static boolean isValidReleaseDate(Film film) {
         return film.getReleaseDate().isAfter(EARLIEST_RELEASE_DATE);
     }

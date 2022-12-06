@@ -2,13 +2,17 @@ package ru.yandex.practicum.filmorate.controllersTests;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controllers.UserController;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserControllerTest {
-    UserController controller = new UserController();
+    InMemoryUserStorage storage = new InMemoryUserStorage();
+    UserService service = new UserService(storage);
+    UserController controller = new UserController(service);
     User goodUser = User.builder().id(1).email("1@mailer.com").login("goodLogin").name("goodName")
                 .birthday(LocalDate.of(1990, 9, 20)).build();
     User goodUser2 = User.builder().id(2).email("2@mailer.com").login("goodLogin2").name("goodName2")
@@ -16,30 +20,30 @@ public class UserControllerTest {
 
     @Test
     public void createNewUserTest() {
-        controller.createUser(goodUser);
+        controller.create(goodUser);
         assertEquals(1, controller.getUsers().size());
-        controller.createUser(goodUser2);
+        controller.create(goodUser2);
         assertEquals(2, controller.getUsers().size());
     }
     @Test
     public void updateUserTest(){
-        controller.createUser(goodUser);
+        controller.create(goodUser);
         assertEquals(1, controller.getUsers().size());
         User goodNewUser = User.builder().id(1).email("1@mailer.com").login("goodLogin").name("updateName")
                 .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.updateUser(goodNewUser);
+        controller.update(goodNewUser);
         assertEquals(1, controller.getUsers().size());
         User goodNewUser1 = User.builder().id(1).email("new@mailer.com").login("goodLogin").name("updateName")
                 .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.updateUser(goodNewUser1);
+        controller.update(goodNewUser1);
         assertEquals(1, controller.getUsers().size());
         User goodNewUser2 = User.builder().id(1).email("new@mailer.com").login("updateLogin").name("updateName")
                 .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.updateUser(goodNewUser2);
+        controller.update(goodNewUser2);
         assertEquals(1, controller.getUsers().size());
         User goodNewUser3 = User.builder().id(1).email("new@mailer.com").login("updateLogin").name("updateName")
                 .birthday(LocalDate.of(2000, 9, 20)).build();
-        controller.updateUser(goodNewUser3);
+        controller.update(goodNewUser3);
         assertEquals(1, controller.getUsers().size());
     }
     @Test
@@ -47,7 +51,7 @@ public class UserControllerTest {
         User userWithBBlankName = User.builder().id(1).email("1@mailer.com").login("Login")
                 .name("")
                 .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.createUser(userWithBBlankName);
+        controller.create(userWithBBlankName);
         assertEquals(userWithBBlankName.getLogin(), userWithBBlankName.getName());
     }
 }
