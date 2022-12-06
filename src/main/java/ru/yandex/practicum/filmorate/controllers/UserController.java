@@ -45,29 +45,35 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getUser(@PathVariable long userId) {
-        User user = getById(userId);
+        User user = service.getById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
         log.info("Получение пользователя с ID = {}", userId);
         return user;
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
     public void makeFriends(@PathVariable long userId, @PathVariable long friendId) {
-        User user = getById(userId);
-        User friend = getById(friendId);
+        User user = service.getById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+        User friend = service.getById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
         service.addFriend(user, friend);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
     public void deleteFriend(@PathVariable long userId, @PathVariable long friendId) {
-        User user = getById(userId);
-        User friend = getById(friendId);
+        User user = service.getById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+        User friend = service.getById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
         service.deleteFriend(user, friend);
     }
 
     @GetMapping("/{userId}/friends")
     public List<User> getUserFriends(@PathVariable long userId) {
         log.info("Получение списка друзей пользователя с ID = {}", userId);
-        User user = getById(userId);
+        User user = service.getById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
         Set<Long> friendList = user.getFriends();
         return service.getUsers().stream()
                 .filter(f -> friendList.contains(f.getId()))
@@ -77,13 +83,11 @@ public class UserController {
     @GetMapping("/{userId}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable long userId, @PathVariable long otherId) {
         log.info("Получение списка общих друзей пользователей c ID {} и {}", userId, otherId);
-        User user = getById(userId);
-        User otherUser = getById(otherId);
+        User user = service.getById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+        User otherUser = service.getById(otherId)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
         Set<User> mutualFriends = service.getMutualFriends(user, otherUser);
         return new ArrayList<>(mutualFriends);
-    }
-
-    private User getById(long id) {
-        return service.getById(id).orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
     }
 }

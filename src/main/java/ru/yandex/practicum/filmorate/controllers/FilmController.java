@@ -30,7 +30,8 @@ public class FilmController {
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        Film validatedFilm = getById(film.getId());
+        Film validatedFilm = service.getById(film.getId())
+                .orElseThrow(() -> new NotFoundException("Фильма с ID " + film.getId() + " не существует."));
         Validator.filmValidator(film);
         log.info("Обновление фильма {}", validatedFilm.getName());
         service.update(film);
@@ -46,13 +47,15 @@ public class FilmController {
     @PutMapping("/{filmId}/like/{userId}")
     public void like(@PathVariable long filmId, @PathVariable long userId) {
         log.info("Пользователь с ID {} поставил лайк фильму с ID {}", userId, filmId);
-        Film film = getById(filmId);
+        Film film = service.getById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
         service.setLike(userId, film);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteLike(@PathVariable long filmId, @PathVariable long userId) {
-        Film validatedFilm = getById(filmId);
+        Film validatedFilm = service.getById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
         if (!validatedFilm.getLikes().contains(userId)) {
             throw new NotFoundException("Пользователь с ID " + userId + " не ставил лайк фильму "
                     + validatedFilm.getName());
@@ -69,12 +72,9 @@ public class FilmController {
 
     @GetMapping("/{filmId}")
     public Film getFilmById(@PathVariable long filmId) {
-        Film validatedFilm = getById(filmId);
+        Film validatedFilm = service.getById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
         log.info("Получение фильма с ID {}", filmId);
         return validatedFilm;
-    }
-
-    private Film getById(long filmId) {
-        return service.getById(filmId).orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
     }
 }
