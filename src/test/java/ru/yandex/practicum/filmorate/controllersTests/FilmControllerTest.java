@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.controllersTests;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
+import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dao.FilmStorageDao;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -12,7 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
     InMemoryFilmStorage storage = new InMemoryFilmStorage();
-    FilmService service = new FilmService(storage);
+    JdbcTemplate jdbcTemplate;
+    FilmDbStorage dbStorage = new FilmStorageDao(jdbcTemplate);
+    FilmService service = new FilmService(dbStorage);
     FilmController controller = new FilmController(service);
     Film goodFilm = Film.builder().id(1).name("Kill Bill")
             .description("Some lady want to kill her ex boyfriend with big knife.")

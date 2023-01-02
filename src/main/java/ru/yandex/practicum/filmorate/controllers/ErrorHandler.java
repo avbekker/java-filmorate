@@ -33,6 +33,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleExceptions (final InternalError e) {
         log.info("500 {}", e.getMessage());
+
         return new ErrorResponse("Внутренняя ошибка сервера.", e.getMessage());
     }
 

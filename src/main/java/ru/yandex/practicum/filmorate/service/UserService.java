@@ -2,8 +2,9 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -12,16 +13,16 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage storage;
+    private final UserDbStorage storage;
 
     public void addFriend(User user, User friend) {
+        storage.makeFriend(user, friend);
         user.getFriends().add(friend.getId());
-        friend.getFriends().add(user.getId());
     }
 
     public void deleteFriend(User user, User friend) {
+        storage.deleteFriend(user, friend);
         user.getFriends().remove(friend.getId());
-        friend.getFriends().remove(user.getId());
     }
 
     public Set<User> getMutualFriends(User user, User friend) {
@@ -30,8 +31,8 @@ public class UserService {
         return storage.getUsers().stream().filter(u -> mutualIds.contains(u.getId())).collect(Collectors.toSet());
     }
 
-    public void create(User user) {
-        storage.create(user);
+    public User create(User user) {
+        return storage.create(user);
     }
 
     public void delete(User user) {

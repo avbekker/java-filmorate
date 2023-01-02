@@ -6,6 +6,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.Validator;
 import javax.validation.Valid;
@@ -76,5 +78,31 @@ public class FilmController {
                 .orElseThrow(() -> new NotFoundException("Фильма с ID " + filmId + " не существует."));
         log.info("Получение фильма с ID {}", filmId);
         return validatedFilm;
+    }
+
+    @GetMapping("/genres")
+    public List<Genre> getGenres() {
+        log.info("Получение списка всех жанров.");
+        return service.getGenres();
+    }
+
+    @GetMapping("/genres/{id}")
+    public Genre getGenreById(@PathVariable int id) {
+        log.info("Получение жанра с идентификатором {}", id);
+        return service.getGenreById(id)
+                .orElseThrow(() -> new NotFoundException("Жанра с ID " + id + " не существует."));
+    }
+
+    @GetMapping("/mpa")
+    public List<MPA> getMPAs() {
+        log.info("Получение списка всех рейтингов");
+        return service.getMPAs();
+    }
+
+    @GetMapping("/mpa/{id}")
+    public MPA getMPAById(@PathVariable int id) {
+        log.info("Получение рейтинга с идентификатором {}", id);
+        return service.getMPAById(id)
+                .orElseThrow(() -> new NotFoundException("Рейтинга с ID " + id + " не существует."));
     }
 }

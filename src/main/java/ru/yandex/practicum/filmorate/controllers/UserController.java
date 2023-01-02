@@ -22,8 +22,7 @@ public class UserController {
     public User create(@Valid @RequestBody User user) {
         Validator.userValidator(user);
         log.info("Новый пользователь {} создан", user.getLogin());
-        service.create(user);
-        return user;
+        return service.create(user);
     }
 
     @PutMapping

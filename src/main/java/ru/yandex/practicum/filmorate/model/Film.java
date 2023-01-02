@@ -24,4 +24,5 @@ public class Film {
     private int duration;
     @JsonIgnore
     Set<Long> likes = new HashSet<>();
+    private MPA mpa;
 }
