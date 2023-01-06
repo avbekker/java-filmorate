@@ -16,8 +16,6 @@ public interface FilmDbStorage {
     Optional<Genre> getGenreById(int id);
     List<MPA> getMPAs();
     Optional<MPA> getMPAById(int id);
-
     void setLike(Long userId, Film film);
-
     void deleteLike(Long userId, Film film);
 }

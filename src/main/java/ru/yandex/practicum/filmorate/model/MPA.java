@@ -15,7 +15,4 @@ public class MPA {
     private int id;
     @NotBlank
     private String name;
-    public MPA (int id) {
-        this.id = id;
-    }
 }

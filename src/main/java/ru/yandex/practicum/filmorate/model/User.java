@@ -24,6 +24,4 @@ public class User {
     private LocalDate birthday;
     @JsonIgnore
     Set<Long> friends = new HashSet<>();
-
-
 }

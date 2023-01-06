@@ -18,6 +18,8 @@ public class FilmMapper implements RowMapper<Film> {
     private final static String GENRE_MAPPER = "SELECT G.GENRE_ID FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
     private final static String LIKE_MAPPER = "SELECT USER_ID FROM FILM_LIKES WHERE FILM_ID = ?";
     private final static String MPA_MAPPER = "SELECT * FROM MPA WHERE MPA_ID = ?";
+    private final static String GENRE_BY_ID = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
+
     @Autowired
     public FilmMapper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -49,7 +51,7 @@ public class FilmMapper implements RowMapper<Film> {
     }
 
     public Genre genreMapper(int id) {
-        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT * FROM GENRE WHERE GENRE_ID = ?", id);
+        SqlRowSet rs = jdbcTemplate.queryForRowSet(GENRE_BY_ID, id);
         if (rs.next()) {
             return Genre.builder()
                     .id(rs.getInt("GENRE_ID"))
