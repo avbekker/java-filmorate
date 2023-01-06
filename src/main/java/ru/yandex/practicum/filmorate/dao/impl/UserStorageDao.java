@@ -3,11 +3,15 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.interf.UserDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.util.*;
 
 @Component
@@ -16,7 +20,6 @@ import java.util.*;
 public class UserStorageDao implements UserDbStorage {
     private final JdbcTemplate jdbcTemplate;
     private final static String CREATE = "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?)";
-    private final static String GET_LAST_ADDED = "SELECT USER_ID FROM USERS ORDER BY USER_ID DESC LIMIT 1";
     private final static String DELETE = "DELETE FROM USERS WHERE USER_ID = ?";
     private final static String UPDATE = "UPDATE USERS SET USER_NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE USER_ID = ?";
     private final static String GET_USERS = "SELECT USER_ID FROM USERS";
@@ -27,11 +30,17 @@ public class UserStorageDao implements UserDbStorage {
 
     @Override
     public User create(User user) {
-        jdbcTemplate.update(CREATE, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
-        Integer id = jdbcTemplate.queryForObject(GET_LAST_ADDED, Integer.class);
-        if (id == null) {
-            throw new NotFoundException("Not found");
-        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(CREATE, new String[] {"USER_ID"});
+                ps.setString(1, user.getEmail());
+                ps.setString(2, user.getLogin());
+                ps.setString(3, user.getName());
+                ps.setDate(4, Date.valueOf(user.getBirthday()));
+                return ps;
+        }, keyHolder);
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        long id = user.getId();
         return getById(id).orElseThrow(() -> new NotFoundException("Not found"));
     }
 
