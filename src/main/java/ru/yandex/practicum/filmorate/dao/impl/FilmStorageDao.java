@@ -12,9 +12,8 @@ import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 
 @Component
 @Slf4j
@@ -97,7 +96,8 @@ public class FilmStorageDao implements FilmDbStorage {
         if (genres == null) {
             return;
         }
-        for (Genre genre : genres) {
+        Set<Genre> genresWithoutDouble = new LinkedHashSet<>(genres);
+        for (Genre genre : genresWithoutDouble) {
             jdbcTemplate.update("INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)", filmId, genre.getId());
         }
     }

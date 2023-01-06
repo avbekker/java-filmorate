@@ -15,7 +15,7 @@ import java.util.*;
 @Component
 public class FilmMapper implements RowMapper<Film> {
     private final JdbcTemplate jdbcTemplate;
-    private final static String GENRE_MAPPER = "SELECT G.GENRE_ID, NAME FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
+    private final static String GENRE_MAPPER = "SELECT G.GENRE_ID FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
     private final static String LIKE_MAPPER = "SELECT USER_ID FROM FILM_LIKES WHERE FILM_ID = ?";
     private final static String MPA_MAPPER = "SELECT * FROM MPA WHERE MPA_ID = ?";
     @Autowired
@@ -39,13 +39,10 @@ public class FilmMapper implements RowMapper<Film> {
 
     public List<Genre> genreMapping(long filmId){
         List<Genre> genreList = new ArrayList<>();
-        SqlRowSet rs = jdbcTemplate.queryForRowSet(GENRE_MAPPER, filmId);
-        while (rs.next()) {
+        List<Integer> genreIds = jdbcTemplate.queryForList(GENRE_MAPPER, Integer.class, filmId);
+        for (Integer genreId : genreIds) {
             genreList.add(
-                    Genre.builder()
-                            .id(rs.getInt("GENRE_ID"))
-                            .name(rs.getString("NAME"))
-                            .build()
+                    genreMapper(genreId)
             );
         }
         return genreList;
