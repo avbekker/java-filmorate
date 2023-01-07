@@ -1,57 +1,74 @@
 package ru.yandex.practicum.filmorate.controllersTests;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controllers.UserController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.dao.impl.UserStorageDao;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-
 import java.time.LocalDate;
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@Sql(scripts = "classpath:schema.sql",
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserControllerTest {
-    InMemoryUserStorage storage = new InMemoryUserStorage();
-    UserService service = new UserService(storage);
-    UserController controller = new UserController(service);
-    User goodUser = User.builder().id(1).email("1@mailer.com").login("goodLogin").name("goodName")
-                .birthday(LocalDate.of(1990, 9, 20)).build();
-    User goodUser2 = User.builder().id(2).email("2@mailer.com").login("goodLogin2").name("goodName2")
-                .birthday(LocalDate.of(1990, 9, 20)).build();
+    private final UserStorageDao dbStorage;
+
+    User goodUser = User.builder()
+            .id(1)
+            .email("1@mailer.com")
+            .login("goodLogin")
+            .name("goodName")
+            .birthday(LocalDate.of(1990, 9, 20))
+            .build();
+    User goodUser2 = User.builder()
+            .id(2)
+            .email("2@mailer.com")
+            .login("goodLogin2")
+            .name("goodName2")
+            .birthday(LocalDate.of(1990, 9, 20))
+            .build();
 
     @Test
-    public void createNewUserTest() {
-        controller.create(goodUser);
-        assertEquals(1, controller.getUsers().size());
-        controller.create(goodUser2);
-        assertEquals(2, controller.getUsers().size());
+    public void createFilmTest(){
+        dbStorage.create(goodUser);
+        assertEquals(3, goodUser.getId());
     }
+
     @Test
-    public void updateUserTest(){
-        controller.create(goodUser);
-        assertEquals(1, controller.getUsers().size());
-        User goodNewUser = User.builder().id(1).email("1@mailer.com").login("goodLogin").name("updateName")
-                .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.update(goodNewUser);
-        assertEquals(1, controller.getUsers().size());
-        User goodNewUser1 = User.builder().id(1).email("new@mailer.com").login("goodLogin").name("updateName")
-                .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.update(goodNewUser1);
-        assertEquals(1, controller.getUsers().size());
-        User goodNewUser2 = User.builder().id(1).email("new@mailer.com").login("updateLogin").name("updateName")
-                .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.update(goodNewUser2);
-        assertEquals(1, controller.getUsers().size());
-        User goodNewUser3 = User.builder().id(1).email("new@mailer.com").login("updateLogin").name("updateName")
-                .birthday(LocalDate.of(2000, 9, 20)).build();
-        controller.update(goodNewUser3);
-        assertEquals(1, controller.getUsers().size());
+    public void updateFilmTest(){
+        dbStorage.update(
+                User.builder()
+                        .id(1)
+                        .email("1@mailer.com")
+                        .login("newGoodLogin")
+                        .name("goodName")
+                        .birthday(LocalDate.of(1990, 9, 20))
+                        .build()
+        );
+        assertEquals(dbStorage.getById(1).get().getLogin(), "newGoodLogin");
     }
+
     @Test
-    public void ShouldFailCreationWithBlankName() {
-        User userWithBBlankName = User.builder().id(1).email("1@mailer.com").login("Login")
-                .name("")
-                .birthday(LocalDate.of(1990, 9, 20)).build();
-        controller.create(userWithBBlankName);
-        assertEquals(userWithBBlankName.getLogin(), userWithBBlankName.getName());
+    public void getAllFilms(){
+        dbStorage.create(goodUser);
+        dbStorage.create(goodUser2);
+        List<User> users = dbStorage.getUsers();
+        assertEquals(2, users.size());
+    }
+
+    @Test
+    public void getFilmById(){
+        assertThat(dbStorage.getById(1))
+                .isPresent()
+                .hasValueSatisfying(user -> assertThat(user).hasFieldOrPropertyWithValue("id", 1L));
     }
 }
