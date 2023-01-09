@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
@@ -37,8 +36,6 @@ public class FilmStorageDao implements FilmDbStorage {
     private final static String GET_FILM_BY_ID = "SELECT * FROM FILMS WHERE FILM_ID = ?";
     private final static String DELETE_GENRE_FROM_FILM = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
     private final static String GENRE_TO_FILM = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
-    private final static String GET_GENRES = "SELECT GENRE_ID FROM GENRE";
-    private final static String GET_GENRE_BY_ID = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
 
 
     @Override
@@ -100,27 +97,6 @@ public class FilmStorageDao implements FilmDbStorage {
     public void deleteLike(Long userId, Film film) {
         film.getLikes().remove(userId);
         jdbcTemplate.update(DELETE_LIKE, film.getId());
-    }
-
-    public List<Genre> getGenres() {
-        List<Genre> result = new ArrayList<>();
-        List<Integer> genreIds = jdbcTemplate.queryForList(GET_GENRES, Integer.class);
-        for (Integer genreId : genreIds) {
-            result.add(filmMapper.genreMapper(genreId));
-        }
-        return result;
-    }
-
-    public Optional<Genre> getGenreById(int id) {
-        SqlRowSet genreRow = jdbcTemplate.queryForRowSet(GET_GENRE_BY_ID, id);
-        if (genreRow.next()) {
-            Genre genre = Genre.builder()
-                    .id(genreRow.getInt("GENRE_ID"))
-                    .name(genreRow.getString("NAME"))
-                    .build();
-            return Optional.of(genre);
-        }
-        return Optional.empty();
     }
 
     private void genreToFilm(long filmId, List<Genre> genres) {

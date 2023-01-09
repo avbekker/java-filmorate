@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,14 +48,4 @@ public class FilmService {
         return storage.getById(id)
                 .orElseThrow(() -> new NotFoundException("Фильм с таким ID не найден."));
     }
-
-    public List<Genre> getGenres() {
-        return storage.getGenres();
-    }
-
-    public Genre getGenreById(int id) {
-        return storage.getGenreById(id)
-                .orElseThrow(() -> new NotFoundException("Жанра с ID " + id + " не существует."));
-    }
-
 }
