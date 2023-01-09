@@ -3,11 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,23 +45,18 @@ public class FilmService {
         return storage.getFilms();
     }
 
-    public Optional<Film> getById(long id) {
-        return storage.getById(id);
+    public Film getById(long id) {
+        return storage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Фильм с таким ID не найден."));
     }
 
     public List<Genre> getGenres() {
         return storage.getGenres();
     }
 
-    public Optional<Genre> getGenreById(int id) {
-        return storage.getGenreById(id);
+    public Genre getGenreById(int id) {
+        return storage.getGenreById(id)
+                .orElseThrow(() -> new NotFoundException("Жанра с ID " + id + " не существует."));
     }
 
-    public List<Mpa> getMpas() {
-        return storage.getMpa();
-    }
-
-    public Optional<Mpa> getMpaById(int id) {
-        return storage.getMpaById(id);
-    }
 }

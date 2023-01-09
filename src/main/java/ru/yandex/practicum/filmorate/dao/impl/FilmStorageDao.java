@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.*;
@@ -40,8 +39,6 @@ public class FilmStorageDao implements FilmDbStorage {
     private final static String GENRE_TO_FILM = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
     private final static String GET_GENRES = "SELECT GENRE_ID FROM GENRE";
     private final static String GET_GENRE_BY_ID = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
-    private final static String GET_ALL_MPA = "SELECT MPA_ID FROM MPA";
-    private final static String GET_MPA_BY_ID = "SELECT * FROM MPA WHERE MPA_ID = ?";
 
 
     @Override
@@ -122,27 +119,6 @@ public class FilmStorageDao implements FilmDbStorage {
                     .name(genreRow.getString("NAME"))
                     .build();
             return Optional.of(genre);
-        }
-        return Optional.empty();
-    }
-
-    public List<Mpa> getMpa() {
-        List<Mpa> result = new ArrayList<>();
-        List<Integer> mpaIds = jdbcTemplate.queryForList(GET_ALL_MPA, Integer.class);
-        for (Integer mpaId : mpaIds) {
-            result.add(filmMapper.mpaMapper(mpaId));
-        }
-        return result;
-    }
-
-    public Optional<Mpa> getMpaById(int id) {
-        SqlRowSet mpaRow = jdbcTemplate.queryForRowSet(GET_MPA_BY_ID, id);
-        if (mpaRow.next()) {
-            Mpa mpa = Mpa.builder()
-                    .id(mpaRow.getInt("MPA_ID"))
-                    .name(mpaRow.getString("NAME"))
-                    .build();
-            return Optional.of(mpa);
         }
         return Optional.empty();
     }
