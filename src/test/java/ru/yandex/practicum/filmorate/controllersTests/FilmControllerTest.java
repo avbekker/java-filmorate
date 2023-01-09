@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dao.impl.FilmStorageDao;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import java.time.LocalDate;
 import java.util.List;
@@ -30,7 +30,7 @@ public class FilmControllerTest {
                 .description("Some lady want to kill her ex boyfriend with big knife.")
                 .duration(120)
                 .releaseDate(LocalDate.of(2003, 9, 23))
-                .mpa(MPA.builder()
+                .mpa(Mpa.builder()
                         .id(1)
                         .build())
                 .build();
@@ -48,7 +48,7 @@ public class FilmControllerTest {
                         .description("Some lady want to kill her ex boyfriend with big knife.")
                         .duration(120)
                         .releaseDate(LocalDate.of(2003, 9, 23))
-                        .mpa(MPA.builder()
+                        .mpa(Mpa.builder()
                                 .id(1)
                                 .build())
                         .build()
@@ -64,7 +64,7 @@ public class FilmControllerTest {
                 .description("Some lady want to kill her ex boyfriend with big knife.")
                 .duration(120)
                 .releaseDate(LocalDate.of(2003, 9, 23))
-                .mpa(MPA.builder()
+                .mpa(Mpa.builder()
                         .id(1)
                         .build())
                 .build());
@@ -74,7 +74,7 @@ public class FilmControllerTest {
                 .description("Lady from previous part want to kill her ex boyfriend with big knife again.")
                 .duration(120)
                 .releaseDate(LocalDate.of(2004, 6, 17))
-                .mpa(MPA.builder()
+                .mpa(Mpa.builder()
                         .id(1)
                         .build())
                 .build());

@@ -7,7 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -66,10 +66,10 @@ public class FilmMapper implements RowMapper<Film> {
         return new HashSet<>(likes);
     }
 
-    public MPA mpaMapper(int id) {
+    public Mpa mpaMapper(int id) {
         SqlRowSet mpaRow = jdbcTemplate.queryForRowSet(MPA_MAPPER, id);
         if (mpaRow.next()) {
-            return MPA.builder()
+            return Mpa.builder()
                     .id(mpaRow.getInt("MPA_ID"))
                     .name(mpaRow.getString("NAME"))
                     .build();

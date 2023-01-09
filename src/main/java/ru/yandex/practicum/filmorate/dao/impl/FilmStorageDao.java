@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.*;
@@ -126,8 +126,8 @@ public class FilmStorageDao implements FilmDbStorage {
         return Optional.empty();
     }
 
-    public List<MPA> getMPAs() {
-        List<MPA> result = new ArrayList<>();
+    public List<Mpa> getMpa() {
+        List<Mpa> result = new ArrayList<>();
         List<Integer> mpaIds = jdbcTemplate.queryForList(GET_ALL_MPA, Integer.class);
         for (Integer mpaId : mpaIds) {
             result.add(filmMapper.mpaMapper(mpaId));
@@ -135,10 +135,10 @@ public class FilmStorageDao implements FilmDbStorage {
         return result;
     }
 
-    public Optional<MPA> getMPAById(int id) {
+    public Optional<Mpa> getMpaById(int id) {
         SqlRowSet mpaRow = jdbcTemplate.queryForRowSet(GET_MPA_BY_ID, id);
         if (mpaRow.next()) {
-            MPA mpa = MPA.builder()
+            Mpa mpa = Mpa.builder()
                     .id(mpaRow.getInt("MPA_ID"))
                     .name(mpaRow.getString("NAME"))
                     .build();

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,11 +58,11 @@ public class FilmService {
         return storage.getGenreById(id);
     }
 
-    public List<MPA> getMPAs() {
-        return storage.getMPAs();
+    public List<Mpa> getMpas() {
+        return storage.getMpa();
     }
 
-    public Optional<MPA> getMPAById(int id) {
-        return storage.getMPAById(id);
+    public Optional<Mpa> getMpaById(int id) {
+        return storage.getMpaById(id);
     }
 }

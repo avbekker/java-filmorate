@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.dao.interf;
 
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,8 +14,8 @@ public interface FilmDbStorage {
     Optional<Film> getById(long id);
     List<Genre> getGenres();
     Optional<Genre> getGenreById(int id);
-    List<MPA> getMPAs();
-    Optional<MPA> getMPAById(int id);
+    List<Mpa> getMpa();
+    Optional<Mpa> getMpaById(int id);
     void setLike(Long userId, Film film);
     void deleteLike(Long userId, Film film);
 }

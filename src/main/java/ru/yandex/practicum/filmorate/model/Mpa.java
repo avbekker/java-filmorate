@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MPA {
+public class Mpa {
     private int id;
     @NotBlank
     private String name;
