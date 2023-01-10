@@ -18,7 +18,7 @@ public class LikesStorageDao implements LikesDbStorage {
 
     private final static String SET_LIKE = "INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (?, ?)";
     private final static String DELETE_LIKE = "DELETE FROM FILM_LIKES WHERE FILM_ID = ? AND USER_ID = ?";
-    private static final String GET_TOP = "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME " +
+    private static final String GET_TOP = "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME AS MPA_NAME " +
             "FROM FILM_LIKES AS FL RIGHT JOIN FILMS AS F ON FL.FILM_ID = F.FILM_ID " +
             "LEFT JOIN MPA AS M ON F.MPA_ID = M.MPA_ID " +
             "GROUP BY F.FILM_ID ORDER BY COUNT(FL.FILM_ID) DESC LIMIT ?";

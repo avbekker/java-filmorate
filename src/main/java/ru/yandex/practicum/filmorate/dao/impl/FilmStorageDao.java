@@ -31,14 +31,21 @@ public class FilmStorageDao implements FilmDbStorage {
 
 
 
-    private final static String GET_FILMS = "SELECT * FROM FILMS" +
-            " LEFT JOIN MPA M on FILMS.MPA_ID = M.MPA_ID" +
-            " LEFT JOIN FILM_GENRE FG on FILMS.FILM_ID = FG.FILM_ID";
+    private final static String GET_FILMS = "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION," +
+            " F.MPA_ID, M.NAME AS MPA_NAME  FROM FILMS F" +
+            " LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID" +
+            " LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID";
 
 
 
 
-    private final static String GET_FILM_BY_ID = "SELECT * FROM FILMS WHERE FILM_ID = ?";
+    private final static String GET_FILM_BY_ID = "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION," +
+            " F.MPA_ID, M.NAME AS MPA_NAME FROM FILMS F" +
+            " LEFT JOIN MPA M ON F.MPA_ID = M.MPA_ID" +
+            " WHERE FILM_ID = ?";
+
+
+
     private final static String DELETE_GENRE_FROM_FILM = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
     private final static String GENRE_TO_FILM = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
 
@@ -94,7 +101,7 @@ public class FilmStorageDao implements FilmDbStorage {
 
     private void genreToFilm(Film film, List<Genre> genres) {
         jdbcTemplate.update(DELETE_GENRE_FROM_FILM, film.getId());
-        if (genres == null ) {
+        if (genres == null || genres.isEmpty()) {
             return;
         }
         Set<Genre> genreSet = new LinkedHashSet<>(genres);

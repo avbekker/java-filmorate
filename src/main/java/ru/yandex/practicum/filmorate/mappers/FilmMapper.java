@@ -16,7 +16,6 @@ import java.util.List;
 public class FilmMapper implements RowMapper<Film> {
     private final JdbcTemplate jdbcTemplate;
     private final static String GENRE_MAPPER = "SELECT G.GENRE_ID, G.NAME FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
-    private final static String MPA_MAPPER = "SELECT * FROM MPA WHERE MPA_ID = ?";
 
     @Autowired
     public FilmMapper(JdbcTemplate jdbcTemplate) {
@@ -31,13 +30,12 @@ public class FilmMapper implements RowMapper<Film> {
                 .description(rs.getString("DESCRIPTION"))
                 .duration(rs.getInt("DURATION"))
                 .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
-                .mpa(mpaMapper(rs.getInt("MPA_ID")))
+                .mpa(Mpa.builder()
+                        .id(rs.getInt("MPA_ID"))
+                        .name(rs.getString("MPA_NAME"))
+                        .build())
                 .genres(genreMapper(rs.getLong("FILM_ID")))
                 .build();
-    }
-
-    private Mpa mpaMapper(int mpaId) {
-        return jdbcTemplate.queryForObject(MPA_MAPPER, new MpaMapper(), mpaId);
     }
 
     public List<Genre> genreMapper(long filmId){
