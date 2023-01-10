@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.mappers.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.Date;
@@ -28,24 +29,15 @@ public class FilmStorageDao implements FilmDbStorage {
     private final static String DELETE = "DELETE FROM FILMS WHERE FILM_ID = ?";
     private final static String UPDATE = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, " +
             "MPA_ID = ? WHERE FILM_ID = ?";
-
-
-
     private final static String GET_FILMS = "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION," +
             " F.MPA_ID, M.NAME AS MPA_NAME  FROM FILMS F" +
             " LEFT JOIN MPA M on F.MPA_ID = M.MPA_ID" +
             " LEFT JOIN FILM_GENRE FG on F.FILM_ID = FG.FILM_ID";
-
-
-
-
     private final static String GET_FILM_BY_ID = "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION," +
             " F.MPA_ID, M.NAME AS MPA_NAME FROM FILMS F" +
             " LEFT JOIN MPA M ON F.MPA_ID = M.MPA_ID" +
             " WHERE FILM_ID = ?";
-
-
-
+    private final static String GENRE_MAPPER = "SELECT G.GENRE_ID, G.NAME FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
     private final static String DELETE_GENRE_FROM_FILM = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
     private final static String GENRE_TO_FILM = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
 
@@ -83,7 +75,11 @@ public class FilmStorageDao implements FilmDbStorage {
 
     @Override
     public List<Film> getFilms() {
-        return jdbcTemplate.query(GET_FILMS, filmMapper);
+        List<Film> films = jdbcTemplate.query(GET_FILMS, filmMapper);
+        for (Film film : films) {
+            addGenres(film, film.getId());
+        }
+        return films;
     }
 
     @Override
@@ -93,6 +89,7 @@ public class FilmStorageDao implements FilmDbStorage {
             if (film == null) {
                 throw new NotFoundException("Not found");
             }
+            addGenres(film, id);
             return Optional.of(film);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Not found", e);
@@ -112,5 +109,10 @@ public class FilmStorageDao implements FilmDbStorage {
             batch.add(values);
         }
         jdbcTemplate.batchUpdate(GENRE_TO_FILM, batch);
+    }
+    
+    public void addGenres(Film film, long filmId){
+        List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, new GenreMapper(), filmId);
+        film.setGenres(genres);
     }
 }

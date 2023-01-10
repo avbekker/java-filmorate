@@ -6,7 +6,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.interf.LikesDbStorage;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.mappers.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
 
@@ -18,6 +20,8 @@ public class LikesStorageDao implements LikesDbStorage {
 
     private final static String SET_LIKE = "INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (?, ?)";
     private final static String DELETE_LIKE = "DELETE FROM FILM_LIKES WHERE FILM_ID = ? AND USER_ID = ?";
+    private final static String GENRE_MAPPER = "SELECT G.GENRE_ID, G.NAME FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
+
     private static final String GET_TOP = "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE, F.DURATION, F.MPA_ID, M.NAME AS MPA_NAME " +
             "FROM FILM_LIKES AS FL RIGHT JOIN FILMS AS F ON FL.FILM_ID = F.FILM_ID " +
             "LEFT JOIN MPA AS M ON F.MPA_ID = M.MPA_ID " +
@@ -35,6 +39,11 @@ public class LikesStorageDao implements LikesDbStorage {
 
     @Override
     public List<Film> getTop(Long count) {
-        return jdbcTemplate.query(GET_TOP, new FilmMapper(jdbcTemplate), count);
+        List<Film> films = jdbcTemplate.query(GET_TOP, new FilmMapper(), count);
+        for (Film film : films) {
+            List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, new GenreMapper(), film.getId());
+            film.setGenres(genres);
+        }
+        return films;
     }
 }
