@@ -24,7 +24,7 @@ public class UserStorageDao implements UserDbStorage {
     private final static String CREATE = "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?)";
     private final static String DELETE = "DELETE FROM USERS WHERE USER_ID = ?";
     private final static String UPDATE = "UPDATE USERS SET USER_NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE USER_ID = ?";
-    private final static String GET_USERS = "SELECT USER_ID FROM USERS";
+    private final static String GET_USERS = "SELECT * FROM USERS";
     private final static String GET_BY_ID = "SELECT* FROM USERS WHERE USER_ID = ?";
 
     @Override
@@ -39,8 +39,7 @@ public class UserStorageDao implements UserDbStorage {
                 return ps;
         }, keyHolder);
         user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        long id = user.getId();
-        return getById(id).orElseThrow(() -> new NotFoundException("Not found"));
+        return user;
     }
 
     @Override
@@ -50,19 +49,14 @@ public class UserStorageDao implements UserDbStorage {
 
     @Override
     public User update(User user) {
-        int id = jdbcTemplate.update(UPDATE, user.getName(), user.getLogin(), user.getEmail(),
+        jdbcTemplate.update(UPDATE, user.getName(), user.getLogin(), user.getEmail(),
                 user.getBirthday(), user.getId());
-        return getById(id).orElseThrow(() -> new NotFoundException("Not found"));
+        return user;
     }
 
     @Override
     public List<User> getAll() {
-        List<Long> usersIds = jdbcTemplate.queryForList(GET_USERS, Long.class);
-        List<User> result = new ArrayList<>();
-        for (Long usersId : usersIds) {
-            result.add(getById(usersId).orElseThrow(() -> new NotFoundException("Not found")));
-        }
-        return result;
+        return jdbcTemplate.query(GET_USERS, new UserMapper());
     }
 
     @Override

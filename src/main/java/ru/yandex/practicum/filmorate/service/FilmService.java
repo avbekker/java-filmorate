@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.dao.interf.LikesDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +23,7 @@ public class FilmService {
     }
 
     public List<Film> getTop(Long count) {
-        return storage.getFilms().stream()
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return likesDbStorage.getTop(count);
     }
 
     public Film create(Film film) {

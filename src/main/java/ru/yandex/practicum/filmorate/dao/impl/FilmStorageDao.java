@@ -28,9 +28,16 @@ public class FilmStorageDao implements FilmDbStorage {
     private final static String DELETE = "DELETE FROM FILMS WHERE FILM_ID = ?";
     private final static String UPDATE = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, " +
             "MPA_ID = ? WHERE FILM_ID = ?";
+
+
+
     private final static String GET_FILMS = "SELECT * FROM FILMS" +
             " LEFT JOIN MPA M on FILMS.MPA_ID = M.MPA_ID" +
             " LEFT JOIN FILM_GENRE FG on FILMS.FILM_ID = FG.FILM_ID";
+
+
+
+
     private final static String GET_FILM_BY_ID = "SELECT * FROM FILMS WHERE FILM_ID = ?";
     private final static String DELETE_GENRE_FROM_FILM = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
     private final static String GENRE_TO_FILM = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
@@ -50,8 +57,8 @@ public class FilmStorageDao implements FilmDbStorage {
         }, keyHolder);
         long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
         film.setId(id);
-        genreToFilm(id, film.getGenres());
-        return getById(id).orElseThrow(() -> new NotFoundException("Not found"));
+        genreToFilm(film, film.getGenres());
+        return film;
     }
 
     @Override
@@ -63,8 +70,8 @@ public class FilmStorageDao implements FilmDbStorage {
     public Film update(Film film) {
         jdbcTemplate.update(UPDATE, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
                 film.getMpa().getId(), film.getId());
-        genreToFilm(film.getId(), film.getGenres());
-        return getById(film.getId()).orElseThrow(() -> new NotFoundException("Not Found"));
+        genreToFilm(film, film.getGenres());
+        return film;
     }
 
     @Override
@@ -85,14 +92,18 @@ public class FilmStorageDao implements FilmDbStorage {
         }
     }
 
-    private void genreToFilm(long filmId, List<Genre> genres) {
-        jdbcTemplate.update(DELETE_GENRE_FROM_FILM, filmId);
-        if (genres == null) {
+    private void genreToFilm(Film film, List<Genre> genres) {
+        jdbcTemplate.update(DELETE_GENRE_FROM_FILM, film.getId());
+        if (genres == null ) {
             return;
         }
-        Set<Genre> genresWithoutDouble = new LinkedHashSet<>(genres);
-        for (Genre genre : genresWithoutDouble) {
-            jdbcTemplate.update(GENRE_TO_FILM, filmId, genre.getId());
+        Set<Genre> genreSet = new LinkedHashSet<>(genres);
+        film.setGenres(new ArrayList<>(genreSet));
+        List<Object[]> batch = new ArrayList<>();
+        for (Genre genre : genreSet) {
+            Long[] values = new Long[]{film.getId(), (long) genre.getId()};
+            batch.add(values);
         }
+        jdbcTemplate.batchUpdate(GENRE_TO_FILM, batch);
     }
 }

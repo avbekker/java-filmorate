@@ -43,17 +43,16 @@ public class FilmController {
 
     @PutMapping("/{filmId}/like/{userId}")
     public void like(@PathVariable long filmId, @PathVariable long userId) {
-        log.info("Пользователь с ID {} поставил лайк фильму с ID {}", userId, filmId);
         Film film = service.getById(filmId);
+        log.info("Пользователь с ID {} поставил лайк фильму с ID {}", userId, filmId);
         service.setLike(userId, film);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     public void deleteLike(@PathVariable long filmId, @PathVariable long userId) {
         Film validatedFilm = service.getById(filmId);
-        if (!validatedFilm.getLikes().contains(userId)) {
-            throw new NotFoundException("Пользователь с ID " + userId + " не ставил лайк фильму "
-                    + validatedFilm.getName());
+        if (userId <= 0) {
+            throw new NotFoundException("Not found.");
         }
         log.info("Пользователь с ID {} убрал лайк от фильма с ID {}", userId, validatedFilm.getId());
         service.deleteLike(userId, validatedFilm);
