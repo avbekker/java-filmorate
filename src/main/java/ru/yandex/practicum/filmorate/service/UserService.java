@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.interf.FriendsDbStorage;
 import ru.yandex.practicum.filmorate.dao.interf.UserDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,18 +12,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserDbStorage storage;
+    private final FriendsDbStorage friendsDbStorage;
 
     public void addFriend(User user, User friend) {
-        storage.makeFriend(user, friend);
+        friendsDbStorage.makeFriend(user, friend);
     }
 
     public void deleteFriend(User user, User friend) {
-        storage.deleteFriend(user, friend);
+        friendsDbStorage.deleteFriend(user, friend);
     }
 
-    //REWORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public List<User> getMutualFriends(long userId, long friendId) {
-        return storage.getMutualFriends(userId, friendId);
+        return friendsDbStorage.getMutualFriends(userId, friendId);
     }
 
     public User create(User user) {
@@ -47,6 +48,6 @@ public class UserService {
     }
 
     public List<User> getFriends(long userId) {
-        return storage.getFriends(userId);
+        return friendsDbStorage.getFriends(userId);
     }
 }

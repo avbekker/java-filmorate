@@ -26,11 +26,6 @@ public class UserStorageDao implements UserDbStorage {
     private final static String UPDATE = "UPDATE USERS SET USER_NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE USER_ID = ?";
     private final static String GET_USERS = "SELECT USER_ID FROM USERS";
     private final static String GET_BY_ID = "SELECT* FROM USERS WHERE USER_ID = ?";
-    private final static String GET_FRIENDS_OF_USER = "SELECT * FROM USERS WHERE USER_ID IN (SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID =?)";
-    private final static String MAKE_FRIEND = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?, ?)";
-    private final static String DELETE_FRIEND = "DELETE FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?";
-    private static final String GET_MUTUAL_FRIENDS = "SELECT * FROM USERS WHERE USER_ID IN " +
-            "(SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID =?) AND USER_ID IN (SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID =?)";
 
     @Override
     public User create(User user) {
@@ -81,25 +76,5 @@ public class UserStorageDao implements UserDbStorage {
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Not found", e);
         }
-    }
-
-    @Override
-    public void makeFriend(User user, User friend) {
-        jdbcTemplate.update(MAKE_FRIEND, user.getId(), friend.getId());
-    }
-
-    @Override
-    public void deleteFriend(User user, User friend) {
-        jdbcTemplate.update(DELETE_FRIEND, user.getId(), friend.getId());
-    }
-
-    @Override
-    public List<User> getFriends(long userId) {
-        return jdbcTemplate.query(GET_FRIENDS_OF_USER, new UserMapper(), userId);
-    }
-
-    @Override
-    public List<User> getMutualFriends(long userId, long friendId) {
-        return jdbcTemplate.query(GET_MUTUAL_FRIENDS, new UserMapper(), userId, friendId);
     }
 }
