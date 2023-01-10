@@ -10,6 +10,4 @@ public interface FilmDbStorage {
     Film update(Film film);
     List<Film> getFilms();
     Optional<Film> getById(long id);
-    void setLike(Long userId, Film film);
-    void deleteLike(Long userId, Film film);
 }

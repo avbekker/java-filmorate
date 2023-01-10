@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dao.interf.LikesDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
@@ -12,13 +13,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmDbStorage storage;
+    private final LikesDbStorage likesDbStorage;
 
     public void setLike(Long userId, Film film) {
-        storage.setLike(userId, film);
+        likesDbStorage.setLike(userId, film);
     }
 
     public void deleteLike(Long userId, Film film) {
-        storage.deleteLike(userId, film);
+        likesDbStorage.deleteLike(userId, film);
     }
 
     public List<Film> getTop(Long count) {

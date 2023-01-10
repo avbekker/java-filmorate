@@ -25,8 +25,6 @@ public class FilmStorageDao implements FilmDbStorage {
 
     private final static String CREATE = "INSERT INTO FILMS (NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID)  " +
             "VALUES (?, ?, ?, ?, ?)";
-    private final static String SET_LIKE = "INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (?, ?)";
-    private final static String DELETE_LIKE = "DELETE FROM FILM_LIKES WHERE FILM_ID = ?";
     private final static String DELETE = "DELETE FROM FILMS WHERE FILM_ID = ?";
     private final static String UPDATE = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, " +
             "MPA_ID = ? WHERE FILM_ID = ?";
@@ -85,18 +83,6 @@ public class FilmStorageDao implements FilmDbStorage {
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Not found", e);
         }
-    }
-
-    @Override
-    public void setLike(Long userId, Film film) {
-        film.getLikes().add(userId);
-        jdbcTemplate.update(SET_LIKE, film.getId(), userId);
-    }
-
-    @Override
-    public void deleteLike(Long userId, Film film) {
-        film.getLikes().remove(userId);
-        jdbcTemplate.update(DELETE_LIKE, film.getId());
     }
 
     private void genreToFilm(long filmId, List<Genre> genres) {
