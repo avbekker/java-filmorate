@@ -3,11 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.interf.UserDbStorage;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,18 +14,15 @@ public class UserService {
 
     public void addFriend(User user, User friend) {
         storage.makeFriend(user, friend);
-        user.getFriends().add(friend.getId());
     }
 
     public void deleteFriend(User user, User friend) {
         storage.deleteFriend(user, friend);
-        user.getFriends().remove(friend.getId());
     }
 
-    public Set<User> getMutualFriends(User user, User friend) {
-        List<Long> mutualIds = user.getFriends().stream()
-                .filter(friend.getFriends()::contains).collect(Collectors.toList());
-        return storage.getUsers().stream().filter(u -> mutualIds.contains(u.getId())).collect(Collectors.toSet());
+    //REWORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public List<User> getMutualFriends(long userId, long friendId) {
+        return storage.getMutualFriends(userId, friendId);
     }
 
     public User create(User user) {
@@ -43,10 +38,15 @@ public class UserService {
     }
 
     public List<User> getUsers() {
-        return storage.getUsers();
+        return storage.getAll();
     }
 
-    public Optional<User> getById(long id) {
-        return storage.getById(id);
+    public User getById(long id) {
+        return storage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+    }
+
+    public List<User> getFriends(long userId) {
+        return storage.getFriends(userId);
     }
 }

@@ -2,13 +2,14 @@ package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.interf.UserDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -19,14 +20,17 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserStorageDao implements UserDbStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserMapper userMapper;
     private final static String CREATE = "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?)";
     private final static String DELETE = "DELETE FROM USERS WHERE USER_ID = ?";
     private final static String UPDATE = "UPDATE USERS SET USER_NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE USER_ID = ?";
     private final static String GET_USERS = "SELECT USER_ID FROM USERS";
     private final static String GET_BY_ID = "SELECT* FROM USERS WHERE USER_ID = ?";
-    private final static String GET_FRIENDS_OF_USER = "SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID = ?";
+    private final static String GET_FRIENDS_OF_USER = "SELECT * FROM USERS WHERE USER_ID IN (SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID =?)";
     private final static String MAKE_FRIEND = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?, ?)";
     private final static String DELETE_FRIEND = "DELETE FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?";
+    private static final String GET_MUTUAL_FRIENDS = "SELECT * FROM USERS WHERE USER_ID IN " +
+            "(SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID =?) AND USER_ID IN (SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID =?)";
 
     @Override
     public User create(User user) {
@@ -57,7 +61,7 @@ public class UserStorageDao implements UserDbStorage {
     }
 
     @Override
-    public List<User> getUsers() {
+    public List<User> getAll() {
         List<Long> usersIds = jdbcTemplate.queryForList(GET_USERS, Long.class);
         List<User> result = new ArrayList<>();
         for (Long usersId : usersIds) {
@@ -68,24 +72,15 @@ public class UserStorageDao implements UserDbStorage {
 
     @Override
     public Optional<User> getById(long id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(GET_BY_ID, id);
-        if (userRows.next()) {
-            log.info("Найден пользователь: {} {}", userRows.getString("USER_ID"),
-                                                    userRows.getString("LOGIN"));
-            List<Long> friends = jdbcTemplate.queryForList(GET_FRIENDS_OF_USER, Long.class, id);
-            Set<Long> fr = new HashSet<>(friends);
-            User user = User.builder()
-                    .id(userRows.getLong("USER_ID"))
-                    .name(userRows.getString("USER_NAME"))
-                    .login(userRows.getString("LOGIN"))
-                    .email(userRows.getString("EMAIL"))
-                    .birthday(Objects.requireNonNull(userRows.getDate("BIRTHDAY")).toLocalDate())
-                    .friends(fr)
-                        .build();
+        try {
+            User user = jdbcTemplate.queryForObject(GET_BY_ID, userMapper, id);
+            if (user == null) {
+                throw new NotFoundException("Not found");
+            }
             return Optional.of(user);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Not found", e);
         }
-        log.info("Пользователь с идентификатором {} не найден.", id);
-        return Optional.empty();
     }
 
     @Override
@@ -96,5 +91,15 @@ public class UserStorageDao implements UserDbStorage {
     @Override
     public void deleteFriend(User user, User friend) {
         jdbcTemplate.update(DELETE_FRIEND, user.getId(), friend.getId());
+    }
+
+    @Override
+    public List<User> getFriends(long userId) {
+        return jdbcTemplate.query(GET_FRIENDS_OF_USER, new UserMapper(), userId);
+    }
+
+    @Override
+    public List<User> getMutualFriends(long userId, long friendId) {
+        return jdbcTemplate.query(GET_MUTUAL_FRIENDS, new UserMapper(), userId, friendId);
     }
 }

@@ -61,7 +61,7 @@ public class UserControllerTest {
     public void getAllFilms(){
         dbStorage.create(goodUser);
         dbStorage.create(goodUser2);
-        List<User> users = dbStorage.getUsers();
+        List<User> users = dbStorage.getAll();
         assertEquals(2, users.size());
     }
 
