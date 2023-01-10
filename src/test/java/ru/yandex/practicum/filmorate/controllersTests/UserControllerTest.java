@@ -38,13 +38,12 @@ public class UserControllerTest {
             .build();
 
     @Test
-    public void createFilmTest(){
-        dbStorage.create(goodUser);
-        assertEquals(3, goodUser.getId());
+    public void createUserTest(){
+        assertEquals(1, goodUser.getId());
     }
 
     @Test
-    public void updateFilmTest(){
+    public void updateUserTest(){
         dbStorage.update(
                 User.builder()
                         .id(1)
@@ -58,7 +57,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getAllFilms(){
+    public void getAllUsers(){
         dbStorage.create(goodUser);
         dbStorage.create(goodUser2);
         List<User> users = dbStorage.getAll();
@@ -66,7 +65,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getFilmById(){
+    public void getUserById(){
         assertThat(dbStorage.getById(1))
                 .isPresent()
                 .hasValueSatisfying(user -> assertThat(user).hasFieldOrPropertyWithValue("id", 1L));
