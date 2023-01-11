@@ -23,7 +23,7 @@ public class GenreStorageDao implements GenreDbStorage {
     private final static String GET_GENRES = "SELECT * FROM GENRE";
     private final static String GET_GENRE_BY_ID = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
     private final static String GENRE_MAPPER = "SELECT FG.FILM_ID, G.GENRE_ID, G.NAME FROM GENRE G INNER JOIN FILM_GENRE FG " +
-            "ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID IN (%s)";
+            "ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID IN (%s) ORDER BY GENRE_ORDER";
 
 
     @Override
