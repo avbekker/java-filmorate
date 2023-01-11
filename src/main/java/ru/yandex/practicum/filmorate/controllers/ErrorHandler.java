@@ -32,14 +32,15 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleExceptions (final InternalError e) {
-        log.info("500 {}", e.getMessage());
+        log.info("500 {}, {}", e.getMessage(), e);
+
         return new ErrorResponse("Внутренняя ошибка сервера.", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleOtherExceptions(final Throwable throwable) {
-        log.info("500 {}", throwable.getMessage());
+        log.info("500 {}, {}", throwable.getMessage(), throwable);
         return new ErrorResponse("Ошибка.", throwable.getMessage());
     }
 
