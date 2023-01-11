@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.*;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 @Data
 @Builder
@@ -22,5 +22,5 @@ public class Film {
     private int duration;
     @NotNull
     private Mpa mpa;
-    private List<Genre> genres;
+    private LinkedHashSet<Genre> genres;
 }

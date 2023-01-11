@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.interf.GenreDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.GenreMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,8 @@ public class GenreStorageDao implements GenreDbStorage {
     private final GenreMapper genreMapper;
     private final static String GET_GENRES = "SELECT * FROM GENRE";
     private final static String GET_GENRE_BY_ID = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
+    private final static String GENRE_MAPPER = "SELECT G.GENRE_ID, G.NAME FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
+
 
     @Override
     public List<Genre> getAll() {
@@ -37,6 +41,18 @@ public class GenreStorageDao implements GenreDbStorage {
             return Optional.of(genre);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Not found", e);
+        }
+    }
+
+    @Override
+    public void addGenresToFilms(List<Film> films) {
+
+        //   List<Genre> g = jdbcTemplate.query("SELECT FILM_ID, G.GENRE_ID, G.NAME FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID IN ?", genreMapper, films);
+
+        for (Film film : films) {
+            List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, genreMapper, film.getId());
+            LinkedHashSet<Genre> result = new LinkedHashSet<>(genres);
+            film.setGenres(result);
         }
     }
 }

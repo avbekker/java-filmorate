@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.mappers.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.Date;
@@ -23,7 +22,6 @@ import java.util.*;
 public class FilmStorageDao implements FilmDbStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
-    private final GenreMapper genreMapper;
 
     private final static String CREATE = "INSERT INTO FILMS (NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID)  " +
             "VALUES (?, ?, ?, ?, ?)";
@@ -38,7 +36,6 @@ public class FilmStorageDao implements FilmDbStorage {
             " F.MPA_ID, M.NAME AS MPA_NAME FROM FILMS F" +
             " LEFT JOIN MPA M ON F.MPA_ID = M.MPA_ID" +
             " WHERE FILM_ID = ?";
-    private final static String GENRE_MAPPER = "SELECT G.GENRE_ID, G.NAME FROM GENRE G INNER JOIN FILM_GENRE FG ON G.GENRE_ID = FG.GENRE_ID WHERE FILM_ID = ?";
     private final static String DELETE_GENRE_FROM_FILM = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
     private final static String GENRE_TO_FILM = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?)";
 
@@ -76,11 +73,7 @@ public class FilmStorageDao implements FilmDbStorage {
 
     @Override
     public List<Film> getFilms() {
-        List<Film> films = jdbcTemplate.query(GET_FILMS, filmMapper);
-        for (Film film : films) {
-            addGenres(film, film.getId());
-        }
-        return films;
+        return jdbcTemplate.query(GET_FILMS, filmMapper);
     }
 
     @Override
@@ -90,30 +83,23 @@ public class FilmStorageDao implements FilmDbStorage {
             if (film == null) {
                 throw new NotFoundException("Not found");
             }
-            addGenres(film, id);
             return Optional.of(film);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Not found", e);
         }
     }
 
-    private void genreToFilm(Film film, List<Genre> genres) {
+    private void genreToFilm(Film film, LinkedHashSet<Genre> genres) {
         jdbcTemplate.update(DELETE_GENRE_FROM_FILM, film.getId());
         if (genres == null || genres.isEmpty()) {
             return;
         }
-        Set<Genre> genreSet = new LinkedHashSet<>(genres);
-        film.setGenres(new ArrayList<>(genreSet));
+        film.setGenres(genres);
         List<Object[]> batch = new ArrayList<>();
-        for (Genre genre : genreSet) {
+        for (Genre genre : genres) {
             Long[] values = new Long[]{film.getId(), (long) genre.getId()};
             batch.add(values);
         }
         jdbcTemplate.batchUpdate(GENRE_TO_FILM, batch);
-    }
-    
-    public void addGenres(Film film, long filmId){
-        List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, genreMapper, filmId);
-        film.setGenres(genres);
     }
 }
