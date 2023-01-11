@@ -18,18 +18,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GenreStorageDao implements GenreDbStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreMapper genreMapper;
     private final static String GET_GENRES = "SELECT * FROM GENRE";
     private final static String GET_GENRE_BY_ID = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
 
     @Override
     public List<Genre> getAll() {
-        return jdbcTemplate.query(GET_GENRES, new GenreMapper());
+        return jdbcTemplate.query(GET_GENRES, genreMapper);
     }
 
     @Override
     public Optional<Genre> getById(int id) {
         try {
-            Genre genre = jdbcTemplate.queryForObject(GET_GENRE_BY_ID, new GenreMapper(), id);
+            Genre genre = jdbcTemplate.queryForObject(GET_GENRE_BY_ID, genreMapper, id);
             if (genre == null) {
                 throw new NotFoundException("Not found");
             }

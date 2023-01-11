@@ -17,19 +17,20 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MpaStorageDao implements MpaDbStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final MpaMapper mpaMapper;
 
     private final static String GET_ALL_MPA = "SELECT * FROM MPA";
     private final static String GET_MPA_BY_ID = "SELECT * FROM MPA WHERE MPA_ID = ?";
 
     @Override
     public List<Mpa> getAll() {
-        return jdbcTemplate.query(GET_ALL_MPA, new MpaMapper());
+        return jdbcTemplate.query(GET_ALL_MPA, mpaMapper);
     }
 
     @Override
     public Optional<Mpa> getById(int id) {
         try {
-            Mpa mpa = jdbcTemplate.queryForObject(GET_MPA_BY_ID, new MpaMapper(), id);
+            Mpa mpa = jdbcTemplate.queryForObject(GET_MPA_BY_ID, mpaMapper, id);
             if (mpa == null) {
                 throw new NotFoundException("Not found");
             }

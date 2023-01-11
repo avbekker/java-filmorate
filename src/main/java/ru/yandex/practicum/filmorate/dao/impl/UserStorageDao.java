@@ -56,7 +56,7 @@ public class UserStorageDao implements UserDbStorage {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query(GET_USERS, new UserMapper());
+        return jdbcTemplate.query(GET_USERS, userMapper);
     }
 
     @Override

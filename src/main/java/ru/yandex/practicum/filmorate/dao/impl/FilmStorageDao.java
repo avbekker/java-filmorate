@@ -23,6 +23,7 @@ import java.util.*;
 public class FilmStorageDao implements FilmDbStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
+    private final GenreMapper genreMapper;
 
     private final static String CREATE = "INSERT INTO FILMS (NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID)  " +
             "VALUES (?, ?, ?, ?, ?)";
@@ -112,7 +113,7 @@ public class FilmStorageDao implements FilmDbStorage {
     }
     
     public void addGenres(Film film, long filmId){
-        List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, new GenreMapper(), filmId);
+        List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, genreMapper, filmId);
         film.setGenres(genres);
     }
 }

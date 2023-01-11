@@ -17,6 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LikesStorageDao implements LikesDbStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final FilmMapper filmMapper;
+    private final GenreMapper genreMapper;
 
     private final static String SET_LIKE = "INSERT INTO FILM_LIKES (FILM_ID, USER_ID) VALUES (?, ?)";
     private final static String DELETE_LIKE = "DELETE FROM FILM_LIKES WHERE FILM_ID = ? AND USER_ID = ?";
@@ -39,9 +41,9 @@ public class LikesStorageDao implements LikesDbStorage {
 
     @Override
     public List<Film> getTop(Long count) {
-        List<Film> films = jdbcTemplate.query(GET_TOP, new FilmMapper(), count);
+        List<Film> films = jdbcTemplate.query(GET_TOP, filmMapper, count);
         for (Film film : films) {
-            List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, new GenreMapper(), film.getId());
+            List<Genre> genres = jdbcTemplate.query(GENRE_MAPPER, genreMapper, film.getId());
             film.setGenres(genres);
         }
         return films;
