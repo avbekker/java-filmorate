@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.dao.interf.LikesDbStorage;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -53,9 +52,7 @@ public class FilmService {
     public Film getById(long id) {
         Film film = filmStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException("Фильм с таким ID не найден."));
-        List<Film> films = new ArrayList<>();
-        films.add(film);
-        genreStorage.addGenresToFilms(films);
+        genreStorage.addGenresToFilms(List.of(film));
         return film;
     }
 }

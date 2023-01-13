@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -46,11 +48,10 @@ public class GenreStorageDao implements GenreDbStorage {
 
     @Override
     public void addGenresToFilms(List<Film> films) {
+        final Map<Long, Film> filmIds = films.stream().collect(Collectors.toMap(Film::getId, Function.identity()));
         List<Long> ids = new ArrayList<>();
-        Map<Long, Film> filmIds = new HashMap<>();
         for (Film film : films) {
             ids.add(film.getId());
-            filmIds.put(film.getId(), film);
             film.setGenres(new LinkedHashSet<>());
         }
         String inSql = String.join(",", Collections.nCopies(ids.size(), "?"));
