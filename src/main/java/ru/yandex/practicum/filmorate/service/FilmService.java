@@ -2,49 +2,57 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.interf.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dao.interf.GenreDbStorage;
+import ru.yandex.practicum.filmorate.dao.interf.LikesDbStorage;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmStorage storage;
+    private final FilmDbStorage filmStorage;
+    private final LikesDbStorage likeStorage;
+    private final GenreDbStorage genreStorage;
 
     public void setLike(Long userId, Film film) {
-        film.getLikes().add(userId);
+        likeStorage.setLike(userId, film);
     }
 
     public void deleteLike(Long userId, Film film) {
-        film.getLikes().remove(userId);
+        likeStorage.deleteLike(userId, film);
     }
 
     public List<Film> getTop(Long count) {
-        return storage.getFilms().stream()
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        List<Film> films = likeStorage.getTop(count);
+        genreStorage.addGenresToFilms(films);
+        return films;
     }
 
-    public void create(Film film) {
-        storage.create(film);
+    public Film create(Film film) {
+        return filmStorage.create(film);
     }
 
     public void delete(Film film) {
-        storage.delete(film);
+        filmStorage.delete(film);
     }
 
-    public void update(Film film) {
-        storage.update(film);
+    public Film update(Film film) {
+        return filmStorage.update(film);
     }
 
     public List<Film> getFilms() {
-        return storage.getFilms();
+        List<Film> films = filmStorage.getFilms();
+        genreStorage.addGenresToFilms(films);
+        return films;
     }
 
-    public Optional<Film> getById(long id) {
-        return storage.getById(id);
+    public Film getById(long id) {
+        Film film = filmStorage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Фильм с таким ID не найден."));
+        genreStorage.addGenresToFilms(List.of(film));
+        return film;
     }
 }

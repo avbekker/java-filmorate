@@ -2,36 +2,32 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.interf.FriendsDbStorage;
+import ru.yandex.practicum.filmorate.dao.interf.UserDbStorage;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserStorage storage;
+    private final UserDbStorage storage;
+    private final FriendsDbStorage friendsDbStorage;
 
     public void addFriend(User user, User friend) {
-        user.getFriends().add(friend.getId());
-        friend.getFriends().add(user.getId());
+        friendsDbStorage.makeFriend(user, friend);
     }
 
     public void deleteFriend(User user, User friend) {
-        user.getFriends().remove(friend.getId());
-        friend.getFriends().remove(user.getId());
+        friendsDbStorage.deleteFriend(user, friend);
     }
 
-    public Set<User> getMutualFriends(User user, User friend) {
-        List<Long> mutualIds = user.getFriends().stream()
-                .filter(friend.getFriends()::contains).collect(Collectors.toList());
-        return storage.getUsers().stream().filter(u -> mutualIds.contains(u.getId())).collect(Collectors.toSet());
+    public List<User> getMutualFriends(long userId, long friendId) {
+        return friendsDbStorage.getMutualFriends(userId, friendId);
     }
 
-    public void create(User user) {
-        storage.create(user);
+    public User create(User user) {
+        return storage.create(user);
     }
 
     public void delete(User user) {
@@ -43,10 +39,15 @@ public class UserService {
     }
 
     public List<User> getUsers() {
-        return storage.getUsers();
+        return storage.getAll();
     }
 
-    public Optional<User> getById(long id) {
-        return storage.getById(id);
+    public User getById(long id) {
+        return storage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователя с таким ID не существует."));
+    }
+
+    public List<User> getFriends(long userId) {
+        return friendsDbStorage.getFriends(userId);
     }
 }
